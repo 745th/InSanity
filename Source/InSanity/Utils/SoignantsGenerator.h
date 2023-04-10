@@ -30,6 +30,11 @@ public:
 		UTexture2D* GenerateSoignant();
 	UFUNCTION(BlueprintCallable)
 		UTexture2D* LoadBakedSoignant(int id);
+
+	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite)
+		UTexture2D* Baked;
 private:
 
 	UTexture2D* BuildTexture(UTextureRenderTarget2D* Rendertarget);
@@ -41,5 +46,6 @@ private:
 		UStaticMeshComponent* Mesh;
 	UPROPERTY()
 		UMaterial* Mat;
+
 	
 };

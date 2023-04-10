@@ -11,8 +11,15 @@ ASoignantsGenerator::ASoignantsGenerator()
 	Mesh->SetStaticMesh(ConstructorHelpers::FObjectFinder<UStaticMesh>(TEXT("StaticMesh '/Game/Cube.Cube'")).Object);
 	Mesh->SetupAttachment(RootComponent);*/
 	
+	
 }
 
+void ASoignantsGenerator::BeginPlay()
+{
+	Super::BeginPlay();
+	FindPaths(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+	Baked = GenerateSoignant();
+}
 
 void ASoignantsGenerator::FindPaths(int Bust, int Top, int Face,int LE, int RE, int Nose, int Mouth, int Eyebrow, int Hair,int Character)
 {
@@ -22,7 +29,7 @@ void ASoignantsGenerator::FindPaths(int Bust, int Top, int Face,int LE, int RE, 
 	FString root;
 	FString tmp;
 	root = TEXT("/Game/Characters/Soignants/Faces/FaceComponents");
-	if (Character % 2)
+	if (Character == 1)
 	{
 		root = root + TEXT("/Character1");
 	}
@@ -263,15 +270,17 @@ UTexture2D* ASoignantsGenerator::GenerateSoignant()
 {
 	UTexture2D* Result=UTexture2D::CreateTransient(512,512);
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassA"));
-	UMaterialInstanceDynamic* BodyMaker = UMaterialInstanceDynamic::Create(Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(),NULL,TEXT("/Game/Characters/Soignants/Faces/m_BodyMaker_Inst.m_BodyMaker_Inst"))),this);
-	UMaterialInstanceDynamic* FaceMaker = UMaterialInstanceDynamic::Create(Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), NULL, TEXT("/Game/Characters/Soignants/Faces/m_FaceMaker_Inst.m_FaceMaker_Inst"))),this);
+	UMaterialInterface * temp= Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), NULL, TEXT("/Game/Characters/Soignants/Faces/m_BodyMaker_Inst.m_BodyMaker_Inst")));	
+	UMaterialInstanceDynamic* BodyMaker = UMaterialInstanceDynamic::Create(temp,this);
+	temp = Cast<UMaterialInterface>(StaticLoadObject(UMaterialInterface::StaticClass(), NULL, TEXT("/Game/Characters/Soignants/Faces/m_FaceMaker_Inst.m_FaceMaker_Inst")));
+	UMaterialInstanceDynamic* FaceMaker = UMaterialInstanceDynamic::Create(temp,this);
 	UTextureRenderTarget2D* RenderTarget = Cast<UTextureRenderTarget2D>(StaticLoadObject(UTextureRenderTarget2D::StaticClass(), NULL, TEXT("/Game/Characters/Soignants/Faces/FaceMaker.FaceMaker")));	
 	LOG("%s", *Paths.Eyebrow);
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassB"));
 	RenderTarget->InitCustomFormat(512, 512, Result->GetPixelFormat(), false);
 	RenderTarget->SRGB = false;
-	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassC"));
-	/*FaceMaker->SetTextureParameterValue(FName("Eyebrow"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Eyebrow)));
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassC"));
+	FaceMaker->SetTextureParameterValue(FName("Eyebrow"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Eyebrow)));
 	FaceMaker->SetTextureParameterValue(FName("Face"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Face)));
 	FaceMaker->SetTextureParameterValue(FName("Mouth"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Mouth)));
 	FaceMaker->SetTextureParameterValue(FName("Nose"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Nose)));
@@ -279,14 +288,14 @@ UTexture2D* ASoignantsGenerator::GenerateSoignant()
 	FaceMaker->SetTextureParameterValue(FName("Right_Eye"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Right_Eye)));
 	
 	FaceMaker->SetTextureParameterValue(FName("COLOR_Eyebrow"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Eyebrow)));
-	FaceMaker->SetTextureParameterValue(FName("COLOR_Face"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Face)));
+	FaceMaker->SetTextureParameterValue(FName("COLOR_Face"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Face)));	
 	FaceMaker->SetTextureParameterValue(FName("COLOR_Mouth"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Mouth)));
 	FaceMaker->SetTextureParameterValue(FName("COLOR_Nose"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Nose)));
 	FaceMaker->SetTextureParameterValue(FName("COLOR_Left_Eye"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Left_Eye)));
 	FaceMaker->SetTextureParameterValue(FName("COLOR_Right_Eye"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Color_Paths.Right_Eye)));
-	*/UKismetRenderingLibrary::DrawMaterialToRenderTarget(this, RenderTarget, FaceMaker);
-	//Result=RenderTarget->ConstructTexture2D(this, TEXT("BakedFace"), EObjectFlags::RF_ClassDefaultObject);
-	Result=BuildTexture(RenderTarget);
+	UKismetRenderingLibrary::DrawMaterialToRenderTarget(this, RenderTarget, FaceMaker);
+	Result=RenderTarget->ConstructTexture2D(this, TEXT("BakedFace"), EObjectFlags::RF_ClassDefaultObject);
+	//Result=BuildTexture(RenderTarget);
 	//Body and the final face
 	/*BodyMaker->SetTextureParameterValue(FName("Bust"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Bust)));
 	BodyMaker->SetTextureParameterValue(FName("Face"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Face)));
@@ -299,7 +308,7 @@ UTexture2D* ASoignantsGenerator::GenerateSoignant()
 	
 	RenderTarget->InitCustomFormat(512, 512, Result->GetPixelFormat(), false);
 	UKismetRenderingLibrary::DrawMaterialToRenderTarget(this, RenderTarget, BodyMaker);
-	//Result = RenderTarget->ConstructTexture2D(this, TEXT("FinalFace"), EObjectFlags::RF_ClassDefaultObject);
+	Result = RenderTarget->ConstructTexture2D(this, TEXT("FinalFace"), EObjectFlags::RF_ClassDefaultObject);
 	Result = BuildTexture(RenderTarget);*/
 	BodyMaker->SetTextureParameterValue(FName("BakedFace"), Cast<UTexture>(Result));
 	//Mesh->GetStaticMesh()->SetMaterial(0, FaceMaker);
