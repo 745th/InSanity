@@ -17,8 +17,8 @@ ASoignantsGenerator::ASoignantsGenerator()
 void ASoignantsGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	FindPaths(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
-	Baked = GenerateSoignant();
+	//FindPaths(1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+	//Baked = GenerateSoignant();
 }
 
 void ASoignantsGenerator::FindPaths(int Bust, int Top, int Face,int LE, int RE, int Nose, int Mouth, int Eyebrow, int Hair,int Character)
@@ -279,7 +279,7 @@ UTexture2D* ASoignantsGenerator::GenerateSoignant()
 	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassB"));
 	RenderTarget->InitCustomFormat(512, 512, Result->GetPixelFormat(), false);
 	RenderTarget->SRGB = false;
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassC"));
+	//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("PassC"));
 	FaceMaker->SetTextureParameterValue(FName("Eyebrow"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Eyebrow)));
 	FaceMaker->SetTextureParameterValue(FName("Face"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Face)));
 	FaceMaker->SetTextureParameterValue(FName("Mouth"), Cast<UTexture>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *Paths.Mouth)));
